@@ -166,50 +166,53 @@ def visualize_strip_detection(mask, strips, pixels_per_row):
 
 
 def extract_waveform(mask, y_start, y_end, strip_num):
-    """Extract waveform from strip"""
+    """Extract waveform from strip using skeletonization for clean signal"""
     print(f"Extracting strip {strip_num}...")
 
     strip_mask = mask[y_start:y_end, :]
     height, width = strip_mask.shape
 
-    # Save mask
+    # Save original mask
     cv2.imwrite(f'output/debug/mask_strip_{strip_num}.png', strip_mask)
 
-    # Extract column by column
-    waveform = []
+    # Step 1: Skeletonize to get single-pixel-wide line
+    from skimage.morphology import skeletonize
+    skeleton = skeletonize(strip_mask > 0).astype(np.uint8) * 255
+    cv2.imwrite(f'output/debug/skeleton_strip_{strip_num}.png', skeleton)
 
+    # Step 2: Extract y-position from skeleton (clean single-pixel line)
+    waveform_raw = []
     for x in range(width):
-        col = strip_mask[:, x]
+        col = skeleton[:, x]
         wf_pixels = np.where(col > 0)[0]
 
         if len(wf_pixels) > 0:
-            y_pos = np.median(wf_pixels)  # Median for robustness
+            # For skeleton, should be 1-2 pixels, take mean
+            y_pos = np.mean(wf_pixels)
         else:
             y_pos = np.nan
 
-        waveform.append(y_pos)
+        waveform_raw.append(y_pos)
 
-    waveform = np.array(waveform)
+    waveform_raw = np.array(waveform_raw)
 
-    # Interpolate gaps
-    nans = np.isnan(waveform)
+    # Step 3: Interpolate NaN gaps (columns with no skeleton pixel)
+    nans = np.isnan(waveform_raw)
+    valid_ratio = np.sum(~nans) / len(waveform_raw)
+    print(f"  Valid skeleton pixels: {valid_ratio*100:.1f}%")
+
     if nans.any() and not nans.all():
-        x_idx = np.arange(len(waveform))
-        waveform[nans] = np.interp(x_idx[nans], x_idx[~nans], waveform[~nans])
+        x_idx = np.arange(len(waveform_raw))
+        waveform_raw[nans] = np.interp(x_idx[nans], x_idx[~nans], waveform_raw[~nans])
 
-    # Invert (image coords → signal)
-    waveform = height - waveform
+    # Step 4: Apply median filter to remove any remaining noise spikes
+    from scipy.ndimage import median_filter
+    waveform_smooth = median_filter(waveform_raw, size=5)
 
-    # Remove extreme outliers
-    median = np.median(waveform)
-    mad = np.median(np.abs(waveform - median))
-    if mad > 0:
-        outliers = np.abs(waveform - median) > (5 * mad)
-        if np.any(outliers):
-            waveform[outliers] = median
-            print(f"  Removed {np.sum(outliers)} outliers")
+    # Step 5: Invert (image coords → signal)
+    waveform = height - waveform_smooth
 
-    # Convert to voltage (pixels → mV)
+    # Step 6: Convert to voltage (pixels → mV)
     baseline = np.median(waveform)
     pixels_from_baseline = waveform - baseline
 
