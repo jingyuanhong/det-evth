@@ -34,27 +34,22 @@ def load_pdf(pdf_path):
 
 def detect_waveform_pixels(image):
     """
-    Detect waveform pixels using calibrated thresholds
-    BGR: R∈[192,224], G∈[0,146], B∈[0,154]
-    HSV: H∈[157,180], S∈[83,255], V∈[192,224]
+    Detect waveform pixels - strict thresholds, thin clean line.
+    No morphological operations that would thicken the line.
     """
     print("Detecting waveform pixels...")
 
     b, g, r = cv2.split(image)
 
-    # BGR threshold
+    # Strict BGR threshold
     mask_bgr = ((b <= 154) & (g <= 146) & (r >= 192) & (r <= 224)).astype(np.uint8) * 255
 
-    # HSV threshold
+    # Strict HSV threshold
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     mask_hsv = cv2.inRange(hsv, np.array([157, 83, 192]), np.array([180, 255, 224]))
 
     # Combine (both must agree)
     mask = cv2.bitwise_and(mask_bgr, mask_hsv)
-
-    # Clean noise
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2, 2))
-    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
 
     num_pixels = np.sum(mask > 0)
     print(f"  Found {num_pixels:,} waveform pixels\n")
@@ -166,133 +161,66 @@ def visualize_strip_detection(mask, strips, pixels_per_row):
 
 
 def extract_waveform(mask, y_start, y_end, strip_num):
-    """Extract waveform from strip using skeletonization for clean signal"""
+    """
+    Extract waveform from thin mask.
+    For gaps (baseline areas with no pixels), fill with baseline y-value.
+    """
     print(f"Extracting strip {strip_num}...")
 
     strip_mask = mask[y_start:y_end, :]
     height, width = strip_mask.shape
 
-    # Save original mask
+    # Save mask
     cv2.imwrite(f'output/debug/mask_strip_{strip_num}.png', strip_mask)
 
-    # Step 1: Skeletonize to get single-pixel-wide line
-    from skimage.morphology import skeletonize
-    skeleton = skeletonize(strip_mask > 0).astype(np.uint8) * 255
-    cv2.imwrite(f'output/debug/skeleton_strip_{strip_num}.png', skeleton)
+    # Extract y-position for each column
+    waveform = np.full(width, np.nan)
 
-    # Step 2: Extract y-position from skeleton (clean single-pixel line)
-    waveform_raw = []
     for x in range(width):
-        col = skeleton[:, x]
-        wf_pixels = np.where(col > 0)[0]
+        col = strip_mask[:, x]
+        white_pixels = np.where(col > 0)[0]
 
-        if len(wf_pixels) > 0:
-            # For skeleton, should be 1-2 pixels, take mean
-            y_pos = np.mean(wf_pixels)
-        else:
-            y_pos = np.nan
+        if len(white_pixels) > 0:
+            waveform[x] = np.mean(white_pixels)
 
-        waveform_raw.append(y_pos)
+    # Find baseline y (median of valid values)
+    valid = ~np.isnan(waveform)
+    valid_count = np.sum(valid)
+    print(f"  Valid columns: {valid_count}/{width} ({valid_count/width*100:.1f}%)")
 
-    waveform_raw = np.array(waveform_raw)
+    if valid_count > 0:
+        baseline_y = np.median(waveform[valid])
 
-    # Step 3: Interpolate NaN gaps (columns with no skeleton pixel)
-    nans = np.isnan(waveform_raw)
-    valid_ratio = np.sum(~nans) / len(waveform_raw)
-    print(f"  Valid skeleton pixels: {valid_ratio*100:.1f}%")
+        # Fill gaps with baseline (flat line in gap regions)
+        waveform[~valid] = baseline_y
 
-    if nans.any() and not nans.all():
-        x_idx = np.arange(len(waveform_raw))
-        waveform_raw[nans] = np.interp(x_idx[nans], x_idx[~nans], waveform_raw[~nans])
+    # Invert y-axis
+    waveform = height - waveform
 
-    # Step 4: Apply median filter to remove any remaining noise spikes
-    from scipy.ndimage import median_filter
-    waveform_smooth = median_filter(waveform_raw, size=5)
-
-    # Step 5: Invert (image coords → signal)
-    waveform = height - waveform_smooth
-
-    # Step 6: Convert to voltage (pixels → mV)
+    # Convert to mV
     baseline = np.median(waveform)
-    pixels_from_baseline = waveform - baseline
-
-    # Calibration: ~17.5 pixels/mm at 300 DPI, 10 mm/mV
-    pixels_per_mm = 17.5
-    mm = pixels_from_baseline / pixels_per_mm
-    voltage = mm / 10.0
+    voltage = (waveform - baseline) / 175.0
 
     print(f"  ✓ {len(voltage)} samples, range [{voltage.min():.3f}, {voltage.max():.3f}] mV")
 
     return voltage
 
 
-def resample_and_concatenate(strips_signals):
-    """Resample each strip to 5120 samples and concatenate with baseline alignment"""
-    print("\nResampling strips to 512 Hz...")
+def concatenate_signals(strips_signals):
+    """Simply concatenate the extracted signals - no extra processing"""
+    print("\nConcatenating strips...")
 
-    resampled = []
-    for i, sig in enumerate(strips_signals):
-        # Each strip = 10 seconds → 5120 samples at 512 Hz
-        duration = 10.0
-        target_samples = 5120
+    # Direct concatenation
+    full_signal = np.concatenate(strips_signals)
 
-        x_old = np.linspace(0, duration, len(sig))
-        x_new = np.linspace(0, duration, target_samples)
-
-        f = interpolate.interp1d(x_old, sig, kind='linear', fill_value='extrapolate')
-        sig_resampled = f(x_new)
-
-        resampled.append(sig_resampled)
-        print(f"  Strip {i+1}: {len(sig)} → {target_samples} samples")
-
-    # Align baselines before concatenation
-    print("\nAligning strip baselines...")
-    aligned = []
-
-    for i, sig in enumerate(resampled):
-        if i == 0:
-            # First strip - use as reference
-            aligned.append(sig)
-            prev_end_mean = np.mean(sig[-100:])  # Mean of last 100 samples
-        else:
-            # Align this strip to match previous strip's ending
-            curr_start_mean = np.mean(sig[:100])  # Mean of first 100 samples
-            offset = prev_end_mean - curr_start_mean
-
-            sig_aligned = sig + offset
-            aligned.append(sig_aligned)
-
-            print(f"  Strip {i+1}: adjusted by {offset:.4f} mV to match Strip {i}")
-            prev_end_mean = np.mean(sig_aligned[-100:])
-
-    # Smooth transitions at boundaries
-    print("\nSmoothing strip boundaries...")
-    full_signal = aligned[0].copy()
-
-    for i in range(1, len(aligned)):
-        next_strip = aligned[i].copy()
-
-        # Apply gentle cross-fade at boundary (50 samples on each side)
-        fade_len = 50
-        fade = np.linspace(0, 1, fade_len)
-
-        # Blend last 50 samples of previous with first 50 of next
-        end_prev = full_signal[-fade_len:]
-        start_next = next_strip[:fade_len]
-
-        blended = end_prev * (1 - fade) + start_next * fade
-
-        # Replace boundary region with blend
-        full_signal[-fade_len:] = blended
-
-        # Concatenate the rest
-        full_signal = np.concatenate([full_signal, next_strip[fade_len:]])
-
-    time = np.arange(len(full_signal)) / 512.0
+    # Calculate sample rate: 3300 pixels / 10 seconds = 330 Hz per strip
+    fs = len(strips_signals[0]) / 10.0
+    time = np.arange(len(full_signal)) / fs
 
     print(f"  Total: {len(full_signal)} samples ({time[-1]:.1f}s)")
+    print(f"  Sample rate: {fs:.1f} Hz")
 
-    return full_signal, time
+    return full_signal, time, fs
 
 
 def apply_filters(signal, fs=512):
@@ -336,62 +264,18 @@ def estimate_hr(signal, fs=512):
     return hr
 
 
-def plot_results(signal, time):
-    """Create visualization"""
-    fig = plt.figure(figsize=(18, 10))
+def plot_three_strips(signals, fs):
+    """Plot three separate 10-second ECG strips"""
+    fig, axes = plt.subplots(3, 1, figsize=(16, 10))
 
-    # Full signal
-    ax1 = plt.subplot(3, 1, 1)
-    ax1.plot(time, signal, 'r-', linewidth=0.7)
-    ax1.set_xlabel('Time (seconds)', fontsize=11)
-    ax1.set_ylabel('Voltage (mV)', fontsize=11)
-    ax1.set_title(f'Complete ECG Signal - {time[-1]:.1f} seconds', fontsize=13, fontweight='bold')
-    ax1.grid(True, alpha=0.3)
-    for t in [10, 20]:
-        ax1.axvline(t, color='gray', linestyle='--', alpha=0.5)
-
-    # Three 10s strips
-    for i in range(3):
-        ax = plt.subplot(3, 3, 4+i)
-        mask = (time >= i*10) & (time < (i+1)*10)
-        if np.any(mask):
-            ax.plot(time[mask], signal[mask], 'r-', linewidth=0.8)
-            ax.set_xlabel('Time (s)', fontsize=9)
-            ax.set_ylabel('Voltage (mV)', fontsize=9)
-            ax.set_title(f'Strip {i+1}: {i*10}-{(i+1)*10}s', fontsize=10, fontweight='bold')
-            ax.grid(True, alpha=0.3)
-
-    # Zoomed
-    ax5 = plt.subplot(3, 3, 7)
-    mask = time <= 3
-    if np.any(mask):
-        ax5.plot(time[mask], signal[mask], 'r-', linewidth=1.2)
-        ax5.set_xlabel('Time (s)', fontsize=9)
-        ax5.set_ylabel('Voltage (mV)', fontsize=9)
-        ax5.set_title('First 3 Seconds', fontsize=10, fontweight='bold')
-        ax5.grid(True, alpha=0.3)
-
-    # Histogram
-    ax6 = plt.subplot(3, 3, 8)
-    ax6.hist(signal, bins=50, color='steelblue', alpha=0.7, edgecolor='black')
-    ax6.set_xlabel('Voltage (mV)', fontsize=9)
-    ax6.set_ylabel('Frequency', fontsize=9)
-    ax6.set_title('Distribution', fontsize=10, fontweight='bold')
-    ax6.axvline(signal.mean(), color='red', linestyle='--', linewidth=2,
-               label=f'Mean: {signal.mean():.3f}')
-    ax6.legend(fontsize=8)
-    ax6.grid(True, alpha=0.3)
-
-    # Spectrum
-    ax7 = plt.subplot(3, 3, 9)
-    freqs = np.fft.rfftfreq(len(signal), 1/512)
-    fft = np.abs(np.fft.rfft(signal))
-    ax7.semilogy(freqs, fft, linewidth=0.8)
-    ax7.set_xlabel('Frequency (Hz)', fontsize=9)
-    ax7.set_ylabel('Magnitude', fontsize=9)
-    ax7.set_title('Spectrum', fontsize=10, fontweight='bold')
-    ax7.set_xlim(0, 50)
-    ax7.grid(True, alpha=0.3)
+    for i, (sig, ax) in enumerate(zip(signals, axes)):
+        time = np.arange(len(sig)) / fs
+        ax.plot(time, sig, 'r-', linewidth=0.8)
+        ax.set_xlabel('Time (seconds)', fontsize=11)
+        ax.set_ylabel('Voltage (mV)', fontsize=11)
+        ax.set_title(f'Strip {i+1}: 0-10 seconds', fontsize=12, fontweight='bold')
+        ax.grid(True, alpha=0.3)
+        ax.set_xlim(0, 10)
 
     plt.tight_layout()
     plt.savefig('output/ecg_final.png', dpi=150, bbox_inches='tight')
@@ -410,75 +294,59 @@ def main():
         sys.exit(1)
 
     print("=" * 70)
-    print("FINAL SIMPLE ECG EXTRACTOR")
+    print("ECG EXTRACTOR - Three 10-second strips")
     print("=" * 70)
     print()
 
-    # 1. Load
+    # 1. Load PDF
     image = load_pdf(pdf_path)
 
     # 2. Detect waveform pixels
     mask = detect_waveform_pixels(image)
 
-    # 3. Find strips (simple: group consecutive rows with pixels)
+    # 3. Find strips
     strips = find_strips_simple(mask)
 
     if len(strips) == 0:
         print("\n❌ ERROR: No strips found!")
-        print("Check output/debug/strip_detection_final.png")
         sys.exit(1)
 
     if len(strips) != 3:
         print(f"\n⚠ WARNING: Found {len(strips)} strips (expected 3)")
-        print("Continuing anyway...\n")
 
-    # 4. Extract waveforms
-    print("Extracting waveforms...")
+    # 4. Extract waveform from each strip separately
+    print("\nExtracting waveforms...")
     signals = []
     for i, (y_start, y_end) in enumerate(strips):
         sig = extract_waveform(mask, y_start, y_end, i+1)
         signals.append(sig)
 
-    # 5. Resample and concatenate
-    full_signal, time = resample_and_concatenate(signals)
+    # Calculate sample rate (pixels / 10 seconds)
+    fs = len(signals[0]) / 10.0
 
-    # 6. Filter
-    print("\nFiltering...")
-    full_signal = apply_filters(full_signal)
-    print("  ✓ Filtered")
-
-    # 7. Results
+    # 5. Results
     print("\n" + "=" * 70)
     print("RESULTS")
     print("=" * 70)
-    print(f"\nDuration: {time[-1]:.2f} seconds")
-    print(f"Samples: {len(full_signal):,}")
-    print(f"Voltage: [{full_signal.min():.3f}, {full_signal.max():.3f}] mV")
-    print(f"Std: {full_signal.std():.3f} mV")
+    for i, sig in enumerate(signals):
+        print(f"\nStrip {i+1}: {len(sig)} samples, [{sig.min():.3f}, {sig.max():.3f}] mV")
 
-    hr = estimate_hr(full_signal)
-    if hr:
-        print(f"Heart Rate: {hr:.1f} bpm")
+    print(f"\nSample rate: {fs:.1f} Hz")
+    print(f"Duration: 10 seconds per strip")
 
-    # 8. Save
+    # 6. Save each strip separately
     print("\nSaving...")
     Path("output").mkdir(exist_ok=True)
-    np.save('output/extracted_ecg_signal.npy', full_signal)
-    np.save('output/extracted_ecg_time.npy', time)
-    print("  output/extracted_ecg_signal.npy")
-    print("  output/extracted_ecg_time.npy")
+    for i, sig in enumerate(signals):
+        np.save(f'output/ecg_strip_{i+1}.npy', sig)
+        print(f"  output/ecg_strip_{i+1}.npy")
 
-    # 9. Plot
+    # 7. Plot three strips
     print("\nPlotting...")
-    plot_results(full_signal, time)
+    plot_three_strips(signals, fs)
 
     print("\n" + "=" * 70)
     print("✓ SUCCESS!")
-    print("=" * 70)
-    print("\nGenerated files:")
-    print("  output/ecg_final.png")
-    print("  output/debug/strip_detection_final.png")
-    print("  output/debug/mask_strip_*.png")
     print("=" * 70)
 
 
