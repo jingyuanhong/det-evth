@@ -293,21 +293,29 @@ def resample_and_concatenate(strips_signals):
 
 
 def apply_filters(signal, fs=512):
-    """Apply ECG filtering with improved baseline handling"""
+    """
+    Apply ECG filtering with ZERO PHASE DISTORTION
 
-    # Step 1: Remove very slow baseline wander (< 0.5 Hz) with gentle high-pass
-    sos_hp = scipy_signal.butter(1, 0.5, 'highpass', fs=fs, output='sos')
-    signal_hp = scipy_signal.sosfilt(sos_hp, signal)
+    Uses filtfilt (forward-backward filtering) to eliminate phase shift
+    that was causing shadow/ghost signals in the output
+    """
 
-    # Step 2: Low-pass to remove high-frequency noise (> 40 Hz)
-    sos_lp = scipy_signal.butter(2, 40, 'lowpass', fs=fs, output='sos')
-    signal_filtered = scipy_signal.sosfilt(sos_lp, signal_hp)
+    # Design filters (use 'ba' format for filtfilt compatibility)
+    # High-pass: remove baseline wander (< 0.5 Hz)
+    b_hp, a_hp = scipy_signal.butter(2, 0.5, 'highpass', fs=fs)
 
-    # Step 3: Gentle median filtering to remove any remaining spikes (preserve morphology)
-    # Use small kernel (5 samples ~ 10ms) to not distort QRS
-    signal_smooth = scipy_signal.medfilt(signal_filtered, kernel_size=5)
+    # Low-pass: remove high-frequency noise (> 40 Hz)
+    b_lp, a_lp = scipy_signal.butter(2, 40, 'lowpass', fs=fs)
 
-    return signal_smooth
+    # Apply zero-phase filtering (forward-backward)
+    # This eliminates the phase distortion that was creating artifacts
+    signal_hp = scipy_signal.filtfilt(b_hp, a_hp, signal)
+    signal_filtered = scipy_signal.filtfilt(b_lp, a_lp, signal_hp)
+
+    # NO median filter - it was introducing artifacts
+    # The zero-phase filtering is sufficient
+
+    return signal_filtered
 
 
 def estimate_hr(signal, fs=512):
