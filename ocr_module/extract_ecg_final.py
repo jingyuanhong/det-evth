@@ -224,7 +224,7 @@ def extract_waveform(mask, y_start, y_end, strip_num):
 
 
 def resample_and_concatenate(strips_signals):
-    """Resample each strip to 5120 samples and concatenate"""
+    """Resample each strip to 5120 samples and concatenate with baseline alignment"""
     print("\nResampling strips to 512 Hz...")
 
     resampled = []
@@ -242,8 +242,49 @@ def resample_and_concatenate(strips_signals):
         resampled.append(sig_resampled)
         print(f"  Strip {i+1}: {len(sig)} → {target_samples} samples")
 
-    # Concatenate
-    full_signal = np.concatenate(resampled)
+    # Align baselines before concatenation
+    print("\nAligning strip baselines...")
+    aligned = []
+
+    for i, sig in enumerate(resampled):
+        if i == 0:
+            # First strip - use as reference
+            aligned.append(sig)
+            prev_end_mean = np.mean(sig[-100:])  # Mean of last 100 samples
+        else:
+            # Align this strip to match previous strip's ending
+            curr_start_mean = np.mean(sig[:100])  # Mean of first 100 samples
+            offset = prev_end_mean - curr_start_mean
+
+            sig_aligned = sig + offset
+            aligned.append(sig_aligned)
+
+            print(f"  Strip {i+1}: adjusted by {offset:.4f} mV to match Strip {i}")
+            prev_end_mean = np.mean(sig_aligned[-100:])
+
+    # Smooth transitions at boundaries
+    print("\nSmoothing strip boundaries...")
+    full_signal = aligned[0].copy()
+
+    for i in range(1, len(aligned)):
+        next_strip = aligned[i].copy()
+
+        # Apply gentle cross-fade at boundary (50 samples on each side)
+        fade_len = 50
+        fade = np.linspace(0, 1, fade_len)
+
+        # Blend last 50 samples of previous with first 50 of next
+        end_prev = full_signal[-fade_len:]
+        start_next = next_strip[:fade_len]
+
+        blended = end_prev * (1 - fade) + start_next * fade
+
+        # Replace boundary region with blend
+        full_signal[-fade_len:] = blended
+
+        # Concatenate the rest
+        full_signal = np.concatenate([full_signal, next_strip[fade_len:]])
+
     time = np.arange(len(full_signal)) / 512.0
 
     print(f"  Total: {len(full_signal)} samples ({time[-1]:.1f}s)")
@@ -252,16 +293,21 @@ def resample_and_concatenate(strips_signals):
 
 
 def apply_filters(signal, fs=512):
-    """Apply ECG filtering"""
-    # High-pass: remove baseline drift
-    sos_hp = scipy_signal.butter(2, 0.5, 'highpass', fs=fs, output='sos')
-    signal = scipy_signal.sosfilt(sos_hp, signal)
+    """Apply ECG filtering with improved baseline handling"""
 
-    # Low-pass: remove high-freq noise
+    # Step 1: Remove very slow baseline wander (< 0.5 Hz) with gentle high-pass
+    sos_hp = scipy_signal.butter(1, 0.5, 'highpass', fs=fs, output='sos')
+    signal_hp = scipy_signal.sosfilt(sos_hp, signal)
+
+    # Step 2: Low-pass to remove high-frequency noise (> 40 Hz)
     sos_lp = scipy_signal.butter(2, 40, 'lowpass', fs=fs, output='sos')
-    signal = scipy_signal.sosfilt(sos_lp, signal)
+    signal_filtered = scipy_signal.sosfilt(sos_lp, signal_hp)
 
-    return signal
+    # Step 3: Gentle median filtering to remove any remaining spikes (preserve morphology)
+    # Use small kernel (5 samples ~ 10ms) to not distort QRS
+    signal_smooth = scipy_signal.medfilt(signal_filtered, kernel_size=5)
+
+    return signal_smooth
 
 
 def estimate_hr(signal, fs=512):
