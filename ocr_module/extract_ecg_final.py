@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Final Simple ECG Extractor - No Complex Thresholds!
+ECG Extractor with Signal Filtering
 
-Dead simple logic:
-1. Find waveform pixels (color detection)
-2. Any row with pixels = part of a strip
-3. Group consecutive rows = strips
-4. Extract, resample, done!
+1. Extract waveform from PDF
+2. Apply standard ECG filters:
+   - 0.5 Hz high-pass (baseline drift removal)
+   - 50 Hz low-pass (high-frequency noise reduction)
+   - 50/60 Hz notch (power line interference removal)
 """
 
 import sys
@@ -14,7 +14,8 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from scipy import interpolate, signal as scipy_signal
+from scipy import interpolate
+from scipy.signal import butter, iirnotch, filtfilt
 
 
 def load_pdf(pdf_path):
@@ -206,6 +207,41 @@ def extract_waveform(mask, y_start, y_end, strip_num):
     return voltage
 
 
+def apply_ecg_filters(signal, fs):
+    """
+    Apply standard ECG filtering with edge artifact reduction:
+    1. High-pass filter (0.5 Hz) - remove baseline drift
+    2. Low-pass filter (40 Hz, 2nd order Butterworth) - preserve morphology
+    3. Notch filters (50 Hz and 60 Hz) - remove power line interference
+
+    Uses signal padding to reduce edge artifacts from filtfilt.
+    """
+    # Pad signal to reduce edge artifacts (reflect padding)
+    pad_len = int(fs * 2)  # 2 seconds of padding
+    signal_padded = np.pad(signal, pad_len, mode='reflect')
+
+    # 1. High-pass filter at 0.5 Hz (remove baseline drift)
+    b_hp, a_hp = butter(2, 0.5, btype='high', fs=fs)
+    signal_padded = filtfilt(b_hp, a_hp, signal_padded)
+
+    # 2. Low-pass filter at 40 Hz (preserves T-wave morphology better than 50 Hz)
+    b_lp, a_lp = butter(2, 40, btype='low', fs=fs)
+    signal_padded = filtfilt(b_lp, a_lp, signal_padded)
+
+    # 3. Notch filter at 50 Hz (power line interference - EU)
+    b_notch50, a_notch50 = iirnotch(50, Q=30, fs=fs)
+    signal_padded = filtfilt(b_notch50, a_notch50, signal_padded)
+
+    # 4. Notch filter at 60 Hz (power line interference - US)
+    b_notch60, a_notch60 = iirnotch(60, Q=30, fs=fs)
+    signal_padded = filtfilt(b_notch60, a_notch60, signal_padded)
+
+    # Remove padding
+    signal_filtered = signal_padded[pad_len:-pad_len]
+
+    return signal_filtered
+
+
 def concatenate_signals(strips_signals):
     """Simply concatenate the extracted signals - no extra processing"""
     print("\nConcatenating strips...")
@@ -316,17 +352,29 @@ def main():
 
     # 4. Extract waveform from each strip separately
     print("\nExtracting waveforms...")
-    signals = []
+    signals_raw = []
     for i, (y_start, y_end) in enumerate(strips):
         sig = extract_waveform(mask, y_start, y_end, i+1)
-        signals.append(sig)
+        signals_raw.append(sig)
 
     # Calculate sample rate (pixels / 10 seconds)
-    fs = len(signals[0]) / 10.0
+    fs = len(signals_raw[0]) / 10.0
 
-    # 5. Results
+    # 5. Apply ECG filters to each strip
+    print("\nApplying filters (with 2s padding to reduce edge artifacts)...")
+    print(f"  - High-pass: 0.5 Hz (baseline drift removal)")
+    print(f"  - Low-pass: 40 Hz (preserves T-wave morphology)")
+    print(f"  - Notch: 50 Hz & 60 Hz (power line interference)")
+
+    signals = []
+    for i, sig in enumerate(signals_raw):
+        filtered = apply_ecg_filters(sig, fs)
+        signals.append(filtered)
+        print(f"  Strip {i+1}: filtered")
+
+    # 6. Results
     print("\n" + "=" * 70)
-    print("RESULTS")
+    print("RESULTS (after filtering)")
     print("=" * 70)
     for i, sig in enumerate(signals):
         print(f"\nStrip {i+1}: {len(sig)} samples, [{sig.min():.3f}, {sig.max():.3f}] mV")
