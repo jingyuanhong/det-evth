@@ -1,0 +1,179 @@
+/* Tab Bar */
+"home.tab" = "首页";
+"history.tab" = "历史";
+"profile.tab" = "我的";
+
+/* Home Screen */
+"home.title" = "det-evth";
+"home.heartRate.title" = "今日心率";
+"home.heartRate.avg" = "平均";
+"home.heartRate.range" = "范围: %@-%@ 次/分";
+"home.quickActions.record" = "记录心电图";
+"home.quickActions.import" = "导入PDF";
+"home.recentScreenings" = "最近筛查";
+"home.seeAll" = "查看全部历史";
+
+/* Record Screen */
+"record.title" = "记录心电图";
+"record.instruction" = "将手指放在数码表冠上";
+"record.recording" = "记录中: %d秒 / 30秒";
+"record.cancel" = "取消记录";
+"record.tips" = "请保持静止以获得最佳效果";
+
+/* Import Screen */
+"import.title" = "导入心电图";
+"import.source.title" = "选择导入来源";
+"import.source.pdf" = "导入PDF";
+"import.source.pdf.desc" = "从Apple Watch导出的文件";
+"import.source.camera" = "拍照";
+"import.source.camera.desc" = "拍摄心电图打印件";
+"import.source.photos" = "从相册选择";
+"import.source.photos.desc" = "选择现有图片";
+"import.formats" = "支持的格式:";
+"import.format.pdf" = "Apple Watch心电图PDF";
+"import.format.image" = "JPG/PNG图片 (最低300 DPI)";
+"import.tips" = "为获得最佳效果，请确保:";
+"import.tip1" = "图片清晰、光线充足";
+"import.tip2" = "红色波形清晰可见";
+"import.tip3" = "完整的30秒记录";
+
+/* Screening Screen */
+"screening.title" = "分析心电图";
+"screening.progress" = "正在处理第 %d 条/共3条...";
+"screening.preprocessing" = "预处理信号中...";
+"screening.inference" = "运行AI分析中...";
+
+/* Results Screen */
+"results.title" = "筛查结果";
+"results.primary" = "主要发现";
+"results.confidence" = "置信度: %.1f%%";
+"results.topConditions" = "检测到的主要情况";
+"results.waveform" = "心电图波形";
+"results.disclaimer.title" = "免责声明";
+"results.disclaimer.text" = "这不是医学诊断。请咨询医疗保健专业人员。";
+"results.generateReport" = "生成报告";
+"results.share" = "分享";
+
+/* History Screen */
+"history.title" = "心电图历史";
+"history.empty" = "暂无心电图记录";
+"history.empty.desc" = "记录或导入心电图开始使用";
+"history.source.healthkit" = "Apple Watch";
+"history.source.import" = "已导入";
+
+/* Profile Screen */
+"profile.title" = "我的资料";
+"profile.personalInfo" = "个人信息";
+"profile.dob" = "出生日期";
+"profile.gender" = "性别";
+"profile.height" = "身高";
+"profile.weight" = "体重";
+"profile.emergencyContacts" = "紧急联系人";
+"profile.addContact" = "添加联系人";
+"profile.doctorEmail" = "我的医生邮箱";
+"profile.call" = "拨打";
+
+/* Settings Screen */
+"settings.title" = "设置";
+"settings.language" = "语言";
+"settings.language.en" = "English";
+"settings.language.cn" = "中文";
+"settings.notifications" = "通知";
+"settings.privacy" = "隐私政策";
+"settings.terms" = "服务条款";
+"settings.about" = "关于";
+"settings.version" = "版本";
+
+/* Categories */
+"category.rhythm" = "心律";
+"category.conduction" = "传导";
+"category.infarction" = "梗死";
+"category.hypertrophy" = "肥大";
+"category.stTWave" = "ST/T波";
+"category.pacemaker" = "起搏器";
+"category.axis" = "电轴";
+"category.other" = "其他";
+
+/* Common */
+"common.cancel" = "取消";
+"common.done" = "完成";
+"common.save" = "保存";
+"common.delete" = "删除";
+"common.edit" = "编辑";
+"common.error" = "错误";
+"common.ok" = "确定";
+"common.loading" = "加载中...";
+
+/* Screening Progress */
+"screening.reading" = "读取心电图数据...";
+"screening.processing" = "处理信号中...";
+"screening.analyzing" = "运行AI分析...";
+"screening.saving" = "保存结果...";
+"screening.complete" = "分析完成";
+"screening.extracting" = "提取波形中...";
+
+/* Screening Errors */
+"screening.error.noSignal" = "无法从图像中提取心电图信号";
+"screening.error.preprocessing" = "处理心电图信号时出错";
+"screening.error.inference" = "运行AI分析时出错";
+"screening.error.save" = "保存结果时出错";
+
+/* ECG Sources */
+"source.healthkit" = "Apple Watch";
+"source.pdf" = "PDF导入";
+"source.image" = "图片导入";
+"source.camera" = "相机拍摄";
+"source.appleWatch" = "Apple Watch";
+
+/* HealthKit Errors */
+"healthkit.error.notAvailable" = "此设备不支持HealthKit";
+"healthkit.error.notAuthorized" = "HealthKit访问未授权";
+"healthkit.error.noData" = "未找到心电图数据";
+"healthkit.error.queryFailed" = "查询HealthKit失败";
+
+/* ECG Classification */
+"ecg.classification.sinusRhythm" = "窦性心律";
+"ecg.classification.atrialFibrillation" = "房颤";
+"ecg.classification.lowHeartRate" = "心率过低";
+"ecg.classification.highHeartRate" = "心率过高";
+"ecg.classification.poorReading" = "读数不佳";
+"ecg.classification.inconclusive" = "结果不确定";
+"ecg.classification.notSet" = "未分类";
+"ecg.classification.unknown" = "未知";
+
+/* Extraction Errors */
+"extraction.error.invalidPDF" = "无效或损坏的PDF文件";
+"extraction.error.noPages" = "PDF不包含任何页面";
+"extraction.error.renderFailed" = "渲染PDF失败";
+"extraction.error.invalidImage" = "无效的图像文件";
+"extraction.error.pixelDataFailed" = "读取图像数据失败";
+"extraction.error.noStripsFound" = "未在图像中找到心电图条";
+"extraction.error.processingFailed" = "处理图像时出错";
+
+/* PDF Report */
+"report.subtitle" = "心电图疾病筛查报告";
+"report.patientInfo" = "患者信息";
+"report.name" = "姓名";
+"report.dob" = "出生日期";
+"report.gender" = "性别";
+"report.id" = "患者ID";
+"report.screeningDate" = "筛查日期";
+"report.primaryFinding" = "主要发现";
+"report.topFindings" = "检测到的主要情况";
+"report.condition" = "情况";
+"report.probability" = "概率";
+"report.ecgWaveform" = "心电图波形";
+
+/* Disclaimer */
+"disclaimer.title" = "⚠️ 重要免责声明";
+"disclaimer.full" = "本应用仅供健康参考使用，不是医疗器械。AI生成的结果可能不准确，不应用于诊断或治疗决策。请务必咨询合格的医疗保健专业人员获取医疗建议。";
+
+/* Errors */
+"error.healthkit.auth" = "HealthKit访问被拒绝";
+"error.healthkit.noData" = "无可用心电图数据";
+"error.import.invalid" = "无效的文件格式";
+"error.model.load" = "加载AI模型失败";
+"error.processing" = "处理心电图时出错";
+
+/* Copyright */
+"copyright" = "© 2026 minuscule health Ltd";
