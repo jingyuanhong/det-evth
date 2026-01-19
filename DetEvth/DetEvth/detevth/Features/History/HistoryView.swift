@@ -26,7 +26,17 @@ struct HistoryView: View {
                 }
             }
             .navigationTitle("history.title")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    if !viewModel.screenings.isEmpty {
+                        EditButton()
+                    }
+                }
+            }
             .onAppear {
+                viewModel.loadScreenings()
+            }
+            .refreshable {
                 viewModel.loadScreenings()
             }
         }
@@ -71,13 +81,30 @@ struct HistoryRowView: View {
 class HistoryViewModel: ObservableObject {
     @Published var screenings: [ScreeningResultModel] = []
 
+    private let repository = ScreeningRepository.shared
+    private var screeningEntities: [ScreeningResultEntity] = []
+
     func loadScreenings() {
-        // TODO: Implement Core Data fetch
-        screenings = [
-            ScreeningResultModel(id: UUID(), date: Date(), primaryCondition: "Normal Sinus Rhythm", confidence: 0.92, source: "healthkit"),
-            ScreeningResultModel(id: UUID(), date: Date().addingTimeInterval(-86400), primaryCondition: "Sinus Rhythm", confidence: 0.89, source: "import"),
-            ScreeningResultModel(id: UUID(), date: Date().addingTimeInterval(-172800), primaryCondition: "Sinus Tachycardia", confidence: 0.85, source: "healthkit"),
-        ]
+        screeningEntities = repository.fetchAllScreeningResults()
+        screenings = screeningEntities.map { entity in
+            // Try to extract heart rate from signal if available
+            var heartRate: Int? = nil
+            if let signal = entity.ecgRecord?.signal, !signal.isEmpty {
+                let sampleRate = entity.ecgRecord?.sampleRate ?? 500
+                heartRate = ECGHeartRateExtractor.extractHeartRate(from: signal, sampleRate: sampleRate)
+            }
+
+            return ScreeningResultModel(
+                id: entity.id ?? UUID(),
+                date: entity.createdAt ?? Date(),
+                primaryCondition: entity.primaryCondition?.nameEN ?? "Unknown",
+                confidence: entity.primaryConfidence,
+                source: entity.ecgRecord?.source ?? "import",
+                signal: entity.ecgRecord?.signal,
+                probabilities: entity.probabilities.isEmpty ? nil : entity.probabilities,
+                heartRate: heartRate
+            )
+        }
     }
 
     func filteredScreenings(searchText: String) -> [ScreeningResultModel] {
@@ -88,8 +115,21 @@ class HistoryViewModel: ObservableObject {
     }
 
     func deleteScreenings(at offsets: IndexSet) {
-        screenings.remove(atOffsets: offsets)
-        // TODO: Delete from Core Data
+        // Get the filtered list to match indices correctly
+        let filtered = filteredScreenings(searchText: "")
+        for index in offsets {
+            if index < filtered.count {
+                let screening = filtered[index]
+                // Find and delete from Core Data
+                if let entityIndex = screeningEntities.firstIndex(where: { $0.id == screening.id }) {
+                    let entity = screeningEntities[entityIndex]
+                    repository.deleteScreeningResult(entity)
+                    screeningEntities.remove(at: entityIndex)
+                }
+            }
+        }
+        // Reload to refresh the UI
+        loadScreenings()
     }
 }
 

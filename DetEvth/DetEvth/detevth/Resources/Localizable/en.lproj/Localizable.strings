@@ -36,6 +36,12 @@
 "import.tip1" = "Clear, well-lit image";
 "import.tip2" = "Red waveform visible";
 "import.tip3" = "Full 30-second recording";
+"import.processing.loading" = "Loading image...";
+"import.processing.extracting" = "Extracting ECG waveform...";
+"import.processing.analyzing" = "Running AI analysis...";
+"import.error.title" = "Import Error";
+"import.error.accessDenied" = "Cannot access the selected file";
+"import.error.invalidImage" = "Could not load the selected image";
 
 /* Screening Screen */
 "screening.title" = "Analyzing ECG";
@@ -49,6 +55,8 @@
 "results.confidence" = "Confidence: %.1f%%";
 "results.topConditions" = "Top Detected Conditions";
 "results.waveform" = "ECG Waveform";
+"results.waveform.noData" = "No waveform data available";
+"results.conditions.noData" = "No condition data available";
 "results.disclaimer.title" = "DISCLAIMER";
 "results.disclaimer.text" = "This is not a medical diagnosis. Consult a healthcare professional.";
 "results.generateReport" = "Generate Report";
@@ -70,8 +78,16 @@
 "profile.weight" = "Weight";
 "profile.emergencyContacts" = "Emergency Contacts";
 "profile.addContact" = "Add Contact";
+"profile.editContact" = "Edit Contact";
 "profile.doctorEmail" = "My Doctor's Email";
+"profile.doctorEmail.placeholder" = "doctor@example.com";
+"profile.doctorEmail.hint" = "Enter your doctor's email to easily share ECG reports";
 "profile.call" = "Call";
+"profile.notSet" = "Not set";
+"profile.editProfile" = "Edit Profile";
+"profile.contact.name" = "Name";
+"profile.contact.phone" = "Phone Number";
+"profile.contact.relationship" = "Relationship";
 
 /* Settings Screen */
 "settings.title" = "Settings";

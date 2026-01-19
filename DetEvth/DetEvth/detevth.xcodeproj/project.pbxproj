@@ -6,13 +6,35 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		CD9623AF2F1E3F2B00B315DB /* ECGFounderModelHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD9623AE2F1E3F2B00B315DB /* ECGFounderModelHelper.swift */; };
+		CD9623B22F1E3F6A00B315DB /* ECGFounder1Lead.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = CD9623B02F1E3F6A00B315DB /* ECGFounder1Lead.mlpackage */; };
+		CD9623B32F1E3F6A00B315DB /* ECGFounder1Lead_4bit.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = CD9623B12F1E3F6A00B315DB /* ECGFounder1Lead_4bit.mlpackage */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		CD6D0C1A2F1E0218005F0730 /* detevth.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = detevth.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CD9623AE2F1E3F2B00B315DB /* ECGFounderModelHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ECGFounderModelHelper.swift; sourceTree = "<group>"; };
+		CD9623B02F1E3F6A00B315DB /* ECGFounder1Lead.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = ECGFounder1Lead.mlpackage; sourceTree = "<group>"; };
+		CD9623B12F1E3F6A00B315DB /* ECGFounder1Lead_4bit.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = ECGFounder1Lead_4bit.mlpackage; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		CD9623B72F1E4A5300B315DB /* Exceptions for "detevth" folder in "detevth" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = CD6D0C192F1E0218005F0730 /* detevth */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		CD6D0C1C2F1E0218005F0730 /* detevth */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CD9623B72F1E4A5300B315DB /* Exceptions for "detevth" folder in "detevth" target */,
+			);
 			path = detevth;
 			sourceTree = "<group>";
 		};
@@ -32,6 +54,9 @@
 		CD6D0C112F1E0218005F0730 = {
 			isa = PBXGroup;
 			children = (
+				CD9623B02F1E3F6A00B315DB /* ECGFounder1Lead.mlpackage */,
+				CD9623B12F1E3F6A00B315DB /* ECGFounder1Lead_4bit.mlpackage */,
+				CD9623AE2F1E3F2B00B315DB /* ECGFounderModelHelper.swift */,
 				CD6D0C1C2F1E0218005F0730 /* detevth */,
 				CD6D0C1B2F1E0218005F0730 /* Products */,
 			);
@@ -120,6 +145,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CD9623AF2F1E3F2B00B315DB /* ECGFounderModelHelper.swift in Sources */,
+				CD9623B22F1E3F6A00B315DB /* ECGFounder1Lead.mlpackage in Sources */,
+				CD9623B32F1E3F6A00B315DB /* ECGFounder1Lead_4bit.mlpackage in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -256,6 +284,9 @@
 				DEVELOPMENT_TEAM = NWLHF93P8Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = detevth/Info.plist;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "det-evth needs access to your health data to read ECG recordings and heart rate measurements. │ ";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "det-evth needs access to save screening results.            ";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -285,6 +316,9 @@
 				DEVELOPMENT_TEAM = NWLHF93P8Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = detevth/Info.plist;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "det-evth needs access to your health data to read ECG recordings and heart rate measurements. │ ";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "det-evth needs access to save screening results.            ";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

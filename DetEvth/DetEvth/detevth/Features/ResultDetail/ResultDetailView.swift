@@ -17,10 +17,10 @@ struct ResultDetailView: View {
                 )
 
                 // ECG Waveform
-                WaveformSection()
+                WaveformSection(signal: screening.signal)
 
                 // Top Conditions
-                TopConditionsSection()
+                TopConditionsSection(probabilities: screening.probabilities)
 
                 // Disclaimer
                 DisclaimerBanner()
@@ -96,40 +96,89 @@ struct PrimaryFindingCard: View {
 
 // MARK: - Waveform Section
 struct WaveformSection: View {
+    let signal: [Float]?
+
+    // Downsample signal for display
+    private var displaySignal: [(index: Int, value: Double)] {
+        guard let signal = signal, !signal.isEmpty else {
+            return []
+        }
+
+        // Downsample to max 500 points for smooth display
+        let maxPoints = 500
+        let step = max(1, signal.count / maxPoints)
+
+        var result: [(index: Int, value: Double)] = []
+        for i in stride(from: 0, to: signal.count, by: step) {
+            result.append((index: result.count, value: Double(signal[i])))
+        }
+        return result
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("results.waveform")
                 .font(.headline)
                 .padding(.horizontal)
 
-            // Placeholder waveform chart
-            Chart {
-                ForEach(0..<100, id: \.self) { index in
-                    LineMark(
-                        x: .value("Time", index),
-                        y: .value("Voltage", sin(Double(index) * 0.2) + Double.random(in: -0.1...0.1))
-                    )
-                    .foregroundStyle(.red)
+            if displaySignal.isEmpty {
+                // No signal data available
+                Text("results.waveform.noData")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 150)
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .padding(.horizontal)
+            } else {
+                // Real waveform chart
+                Chart {
+                    ForEach(displaySignal, id: \.index) { point in
+                        LineMark(
+                            x: .value("Time", point.index),
+                            y: .value("Voltage", point.value)
+                        )
+                        .foregroundStyle(.red)
+                        .lineStyle(StrokeStyle(lineWidth: 1))
+                    }
                 }
+                .frame(height: 150)
+                .chartXAxis(.hidden)
+                .chartYAxis(.hidden)
+                .padding(.horizontal)
             }
-            .frame(height: 150)
-            .chartXAxis(.hidden)
-            .chartYAxis(.hidden)
-            .padding(.horizontal)
         }
     }
 }
 
 // MARK: - Top Conditions Section
 struct TopConditionsSection: View {
-    // Sample conditions for preview
-    let conditions = [
-        ("Normal Sinus Rhythm", 0.92),
-        ("Sinus Rhythm", 0.89),
-        ("Sinus Tachycardia", 0.35),
-        ("Left Axis Deviation", 0.23),
-        ("T Wave Abnormality", 0.18)
-    ]
+    let probabilities: [Float]?
+
+    // Get top conditions from probabilities
+    private var topConditions: [(name: String, probability: Float)] {
+        guard let probs = probabilities, !probs.isEmpty else {
+            return []
+        }
+
+        let conditions = DiseaseConditions.all
+
+        // Create array of (index, probability) and sort by probability
+        var indexed: [(index: Int, prob: Float)] = []
+        for (index, prob) in probs.enumerated() {
+            if index < conditions.count && prob >= 0.05 {  // Only show conditions with >= 5% probability
+                indexed.append((index, prob))
+            }
+        }
+
+        indexed.sort { $0.prob > $1.prob }
+
+        // Take top 10
+        return indexed.prefix(10).map { item in
+            (conditions[item.index].nameEN, item.prob)
+        }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -137,12 +186,19 @@ struct TopConditionsSection: View {
                 .font(.headline)
                 .padding(.horizontal)
 
-            VStack(spacing: 8) {
-                ForEach(conditions, id: \.0) { condition, probability in
-                    ConditionRow(name: condition, probability: Float(probability))
+            if topConditions.isEmpty {
+                Text("results.conditions.noData")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal)
+            } else {
+                VStack(spacing: 8) {
+                    ForEach(topConditions, id: \.name) { condition in
+                        ConditionRow(name: condition.name, probability: condition.probability)
+                    }
                 }
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
         }
     }
 }
@@ -155,6 +211,7 @@ struct ConditionRow: View {
         HStack {
             Text(name)
                 .font(.subheadline)
+                .lineLimit(1)
 
             Spacer()
 
@@ -214,7 +271,10 @@ struct ReportPreviewView: View {
             date: Date(),
             primaryCondition: "Normal Sinus Rhythm",
             confidence: 0.92,
-            source: "healthkit"
+            source: "healthkit",
+            signal: (0..<1000).map { Float(sin(Double($0) * 0.05)) },
+            probabilities: nil,
+            heartRate: 72
         ))
     }
 }

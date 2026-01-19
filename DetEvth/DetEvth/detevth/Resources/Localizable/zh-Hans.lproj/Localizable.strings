@@ -36,6 +36,12 @@
 "import.tip1" = "图片清晰、光线充足";
 "import.tip2" = "红色波形清晰可见";
 "import.tip3" = "完整的30秒记录";
+"import.processing.loading" = "加载图片中...";
+"import.processing.extracting" = "提取心电图波形中...";
+"import.processing.analyzing" = "运行AI分析中...";
+"import.error.title" = "导入错误";
+"import.error.accessDenied" = "无法访问所选文件";
+"import.error.invalidImage" = "无法加载所选图片";
 
 /* Screening Screen */
 "screening.title" = "分析心电图";
@@ -49,6 +55,8 @@
 "results.confidence" = "置信度: %.1f%%";
 "results.topConditions" = "检测到的主要情况";
 "results.waveform" = "心电图波形";
+"results.waveform.noData" = "无波形数据";
+"results.conditions.noData" = "无检测数据";
 "results.disclaimer.title" = "免责声明";
 "results.disclaimer.text" = "这不是医学诊断。请咨询医疗保健专业人员。";
 "results.generateReport" = "生成报告";
@@ -70,8 +78,16 @@
 "profile.weight" = "体重";
 "profile.emergencyContacts" = "紧急联系人";
 "profile.addContact" = "添加联系人";
+"profile.editContact" = "编辑联系人";
 "profile.doctorEmail" = "我的医生邮箱";
+"profile.doctorEmail.placeholder" = "doctor@example.com";
+"profile.doctorEmail.hint" = "输入您医生的邮箱以便轻松分享心电图报告";
 "profile.call" = "拨打";
+"profile.notSet" = "未设置";
+"profile.editProfile" = "编辑资料";
+"profile.contact.name" = "姓名";
+"profile.contact.phone" = "电话号码";
+"profile.contact.relationship" = "关系";
 
 /* Settings Screen */
 "settings.title" = "设置";
