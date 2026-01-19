@@ -98,14 +98,14 @@ struct PrimaryFindingCard: View {
 struct WaveformSection: View {
     let signal: [Float]?
 
-    // Downsample signal for display
+    // Keep more points for scrollable display (show ~2000 points for detail)
     private var displaySignal: [(index: Int, value: Double)] {
         guard let signal = signal, !signal.isEmpty else {
             return []
         }
 
-        // Downsample to max 500 points for smooth display
-        let maxPoints = 500
+        // Keep up to 2000 points for detailed scrollable view
+        let maxPoints = 2000
         let step = max(1, signal.count / maxPoints)
 
         var result: [(index: Int, value: Double)] = []
@@ -113,6 +113,23 @@ struct WaveformSection: View {
             result.append((index: result.count, value: Double(signal[i])))
         }
         return result
+    }
+
+    // Calculate tight Y-axis bounds for better readability
+    private var yAxisBounds: (min: Double, max: Double) {
+        guard !displaySignal.isEmpty else {
+            return (0, 1)
+        }
+
+        let values = displaySignal.map { $0.value }
+        let minVal = values.min() ?? 0
+        let maxVal = values.max() ?? 1
+
+        // Calculate range and add small padding (10%)
+        let range = maxVal - minVal
+        let padding = range * 0.1
+
+        return (minVal - padding, maxVal + padding)
     }
 
     var body: some View {
@@ -127,25 +144,31 @@ struct WaveformSection: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .frame(maxWidth: .infinity)
-                    .frame(height: 150)
+                    .frame(height: 200)
                     .background(.ultraThinMaterial)
                     .clipShape(RoundedRectangle(cornerRadius: 8))
                     .padding(.horizontal)
             } else {
-                // Real waveform chart
-                Chart {
-                    ForEach(displaySignal, id: \.index) { point in
-                        LineMark(
-                            x: .value("Time", point.index),
-                            y: .value("Voltage", point.value)
-                        )
-                        .foregroundStyle(.red)
-                        .lineStyle(StrokeStyle(lineWidth: 1))
+                // Scrollable waveform chart
+                ScrollView(.horizontal, showsIndicators: true) {
+                    Chart {
+                        ForEach(displaySignal, id: \.index) { point in
+                            LineMark(
+                                x: .value("Time", point.index),
+                                y: .value("Voltage", point.value)
+                            )
+                            .foregroundStyle(.red)
+                            .lineStyle(StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
+                        }
                     }
+                    .chartYScale(domain: yAxisBounds.min...yAxisBounds.max)
+                    .frame(width: CGFloat(displaySignal.count) * 1.5, height: 200)
+                    .chartXAxis(.hidden)
+                    .chartYAxis(.hidden)
                 }
-                .frame(height: 150)
-                .chartXAxis(.hidden)
-                .chartYAxis(.hidden)
+                .frame(height: 200)
+                .background(.ultraThinMaterial)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
                 .padding(.horizontal)
             }
         }

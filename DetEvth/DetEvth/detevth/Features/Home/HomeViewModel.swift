@@ -34,6 +34,8 @@ class HomeViewModel: ObservableObject {
     private func loadHeartRateData() {
         // Try to fetch from HealthKit
         Task {
+            var healthKitHasData = false
+
             do {
                 // Request authorization if needed
                 if !healthKitService.isAuthorized {
@@ -48,23 +50,43 @@ class HomeViewModel: ObservableObject {
                         self.averageHeartRate = Int(stats.average)
                         self.minHeartRate = Int(stats.min)
                         self.maxHeartRate = Int(stats.max)
-                    } else {
-                        // No data available
-                        self.averageHeartRate = nil
-                        self.minHeartRate = nil
-                        self.maxHeartRate = nil
+                        healthKitHasData = true
                     }
                 }
             } catch {
-                // HealthKit not available or not authorized - show no data
-                await MainActor.run {
-                    self.averageHeartRate = nil
-                    self.minHeartRate = nil
-                    self.maxHeartRate = nil
-                }
                 print("[HomeViewModel] HealthKit error: \(error.localizedDescription)")
             }
+
+            // Fallback: If no HealthKit data, use heart rate from most recent ECG
+            if !healthKitHasData {
+                await MainActor.run {
+                    self.loadHeartRateFromRecentECG()
+                }
+            }
         }
+    }
+
+    /// Fallback: Extract heart rate from the most recent ECG screening
+    private func loadHeartRateFromRecentECG() {
+        let entities = repository.fetchRecentScreeningResults(limit: 1)
+
+        if let latestEntity = entities.first,
+           let signal = latestEntity.ecgRecord?.signal,
+           !signal.isEmpty {
+            let sampleRate = latestEntity.ecgRecord?.sampleRate ?? 500
+            if let heartRate = ECGHeartRateExtractor.extractHeartRate(from: signal, sampleRate: sampleRate) {
+                self.averageHeartRate = heartRate
+                self.minHeartRate = nil  // Not available from single ECG
+                self.maxHeartRate = nil
+                print("[HomeViewModel] Using heart rate from recent ECG: \(heartRate) bpm")
+                return
+            }
+        }
+
+        // No data available at all
+        self.averageHeartRate = nil
+        self.minHeartRate = nil
+        self.maxHeartRate = nil
     }
 
     private func loadRecentScreenings() {
