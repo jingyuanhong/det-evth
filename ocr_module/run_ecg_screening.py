@@ -16,13 +16,13 @@ from pathlib import Path
 from scipy.signal import resample, medfilt, iirnotch, filtfilt, butter
 
 # Add ECGFounder to path
-ECGFOUNDER_PATH = Path(__file__).parent.parent.parent / "github" / "ECGFounder"
+ECGFOUNDER_PATH = Path(__file__).parent.parent / "github" / "ECGFounder"
 sys.path.insert(0, str(ECGFOUNDER_PATH))
 
 from net1d import Net1D
 
 # Paths
-MODEL_PATH = Path(__file__).parent.parent.parent / "github" / "1_lead_ECGFounder.pth"
+MODEL_PATH = Path(__file__).parent.parent / "github" / "1_lead_ECGFounder.pth"
 TASKS_PATH = ECGFOUNDER_PATH / "tasks.txt"
 OUTPUT_DIR = Path(__file__).parent / "output"
 

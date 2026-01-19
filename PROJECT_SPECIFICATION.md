@@ -19,7 +19,7 @@ Develop a mobile health application that:
 ### 1.2 Target Platforms
 - **Primary**: iOS (iPhone) + watchOS (Apple Watch)
 - **Minimum Requirements**:
-  - iOS 14+ (for HKElectrocardiogram API access)
+  - iOS 16+ (for HKElectrocardiogram API access)
   - watchOS 7+ (for ECG recording)
   - Apple Watch Series 4 or later (ECG capability)
 
@@ -42,7 +42,7 @@ Develop a mobile health application that:
 - Direct access to raw voltage measurements via `HKElectrocardiogramQuery`
 - Native sampling frequency from Apple Watch ECG sensor
 - Timestamp-aligned voltage data points
-- Available since iOS 14/watchOS 7 (2020)
+- Available since iOS 14/watchOS 7 (2020); app targets iOS 16+
 
 **Technical Specifications** (from sample):
 - **Sampling Rate**: 512 Hz (native Apple Watch)

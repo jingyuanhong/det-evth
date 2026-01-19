@@ -406,22 +406,13 @@ pip install -r ocr_module/requirements.txt
 
 ## Setup Instructions
 
-### 1. CoreML Model Conversion
+### 1. Xcode Project Setup
 
-```bash
-cd DetEvth/scripts
-python convert_to_coreml.py
-```
-
-This converts the PyTorch ECGFounder model to CoreML with 4-bit quantization.
-
-### 2. Xcode Project Setup
-
-1. Open Xcode and create new iOS App project
-2. Add all Swift files from `DetEvth/DetEvth/`
-3. Add `ECGFounder1Lead_4bit.mlpackage` to project
+1. Open the existing Xcode project at `DetEvth/detevth.xcodeproj`
+2. Verify all Swift files under `DetEvth/DetEvth/` are in the target
+3. Ensure `ECGFounder1Lead_4bit.mlpackage` is in the target membership
 4. Configure entitlements:
-   - HealthKit
+   - HealthKit (including Clinical Health Records)
    - App Groups (for watchOS)
 
 ### 3. Info.plist Entries
@@ -435,7 +426,7 @@ This converts the PyTorch ECGFounder model to CoreML with 4-bit quantization.
 <string>Import ECG images from your photo library</string>
 ```
 
-### 4. Build and Run
+### 3. Build and Run
 
 ```bash
 # Build for device (simulator doesn't support HealthKit ECG)
