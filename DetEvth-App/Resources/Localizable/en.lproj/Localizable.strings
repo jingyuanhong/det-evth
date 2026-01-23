@@ -1,179 +1,179 @@
 /* Tab Bar */
-"home.tab" = "Home";
-"history.tab" = "History";
-"profile.tab" = "Profile";
+"home.tab" = "home";
+"history.tab" = "history";
+"profile.tab" = "profile";
 
 /* Home Screen */
 "home.title" = "det-evth";
-"home.heartRate.title" = "Heart Rate Today";
+"home.heartRate.title" = "heart rate today";
 "home.heartRate.avg" = "avg";
-"home.heartRate.range" = "Range: %@-%@ bpm";
-"home.quickActions.record" = "Record ECG";
-"home.quickActions.import" = "Import PDF";
-"home.recentScreenings" = "Recent Screenings";
-"home.seeAll" = "See All History";
+"home.heartRate.range" = "range: %@-%@ bpm";
+"home.quickActions.record" = "record ecg";
+"home.quickActions.import" = "import pdf";
+"home.recentScreenings" = "recent screenings";
+"home.seeAll" = "see all history";
 
 /* Record Screen */
-"record.title" = "Record ECG";
-"record.instruction" = "Place your finger on the Digital Crown";
-"record.recording" = "Recording: %ds / 30s";
-"record.cancel" = "Cancel Recording";
-"record.tips" = "Stay still for best results";
+"record.title" = "record ecg";
+"record.instruction" = "place your finger on the digital crown";
+"record.recording" = "recording: %ds / 30s";
+"record.cancel" = "cancel recording";
+"record.tips" = "stay still for best results";
 
 /* Import Screen */
-"import.title" = "Import ECG";
-"import.source.title" = "Choose Import Source";
-"import.source.pdf" = "Import PDF";
-"import.source.pdf.desc" = "From Apple Watch export";
-"import.source.camera" = "Take Photo";
-"import.source.camera.desc" = "Capture ECG printout";
-"import.source.photos" = "Choose from Photos";
-"import.source.photos.desc" = "Select existing image";
-"import.formats" = "Supported Formats:";
-"import.format.pdf" = "Apple Watch ECG PDF";
-"import.format.image" = "JPG/PNG images (300 DPI min)";
-"import.tips" = "For best results, ensure:";
-"import.tip1" = "Clear, well-lit image";
-"import.tip2" = "Red waveform visible";
-"import.tip3" = "Full 30-second recording";
+"import.title" = "import ecg";
+"import.source.title" = "choose import source";
+"import.source.pdf" = "import pdf";
+"import.source.pdf.desc" = "from apple watch export";
+"import.source.camera" = "take photo";
+"import.source.camera.desc" = "capture ecg printout";
+"import.source.photos" = "choose from photos";
+"import.source.photos.desc" = "select existing image";
+"import.formats" = "supported formats:";
+"import.format.pdf" = "apple watch ecg pdf";
+"import.format.image" = "jpg/png images (300 dpi min)";
+"import.tips" = "for best results, ensure:";
+"import.tip1" = "clear, well-lit image";
+"import.tip2" = "red waveform visible";
+"import.tip3" = "full 30-second recording";
 
 /* Screening Screen */
-"screening.title" = "Analyzing ECG";
-"screening.progress" = "Processing strip %d of 3...";
-"screening.preprocessing" = "Preprocessing signal...";
-"screening.inference" = "Running AI analysis...";
+"screening.title" = "analyzing ecg";
+"screening.progress" = "processing strip %d of 3...";
+"screening.preprocessing" = "preprocessing signal...";
+"screening.inference" = "running ai analysis...";
 
 /* Results Screen */
-"results.title" = "Screening Results";
-"results.primary" = "Primary Finding";
-"results.confidence" = "Confidence: %.1f%%";
-"results.topConditions" = "Top Detected Conditions";
-"results.waveform" = "ECG Waveform";
-"results.disclaimer.title" = "DISCLAIMER";
-"results.disclaimer.text" = "This is not a medical diagnosis. Consult a healthcare professional.";
-"results.generateReport" = "Generate Report";
-"results.share" = "Share";
+"results.title" = "screening results";
+"results.primary" = "primary finding";
+"results.confidence" = "confidence: %.1f%%";
+"results.topConditions" = "top detected conditions";
+"results.waveform" = "ecg waveform";
+"results.disclaimer.title" = "disclaimer";
+"results.disclaimer.text" = "this is not a medical diagnosis. consult a healthcare professional.";
+"results.generateReport" = "generate report";
+"results.share" = "share";
 
 /* History Screen */
-"history.title" = "ECG History";
-"history.empty" = "No ECG records yet";
-"history.empty.desc" = "Record or import an ECG to get started";
-"history.source.healthkit" = "Apple Watch";
-"history.source.import" = "Imported";
+"history.title" = "ecg history";
+"history.empty" = "no ecg records yet";
+"history.empty.desc" = "record or import an ecg to get started";
+"history.source.healthkit" = "apple watch";
+"history.source.import" = "imported";
 
 /* Profile Screen */
-"profile.title" = "My Profile";
-"profile.personalInfo" = "Personal Information";
-"profile.dob" = "Date of Birth";
-"profile.gender" = "Gender";
-"profile.height" = "Height";
-"profile.weight" = "Weight";
-"profile.emergencyContacts" = "Emergency Contacts";
-"profile.addContact" = "Add Contact";
-"profile.doctorEmail" = "My Doctor's Email";
-"profile.call" = "Call";
+"profile.title" = "my profile";
+"profile.personalInfo" = "personal information";
+"profile.dob" = "date of birth";
+"profile.gender" = "gender";
+"profile.height" = "height";
+"profile.weight" = "weight";
+"profile.emergencyContacts" = "emergency contacts";
+"profile.addContact" = "add contact";
+"profile.doctorEmail" = "my doctor's email";
+"profile.call" = "call";
 
 /* Settings Screen */
-"settings.title" = "Settings";
-"settings.language" = "Language";
-"settings.language.en" = "English";
+"settings.title" = "settings";
+"settings.language" = "language";
+"settings.language.en" = "english";
 "settings.language.cn" = "中文";
-"settings.notifications" = "Notifications";
-"settings.privacy" = "Privacy Policy";
-"settings.terms" = "Terms of Service";
-"settings.about" = "About";
-"settings.version" = "Version";
+"settings.notifications" = "notifications";
+"settings.privacy" = "privacy policy";
+"settings.terms" = "terms of service";
+"settings.about" = "about";
+"settings.version" = "version";
 
 /* Categories */
-"category.rhythm" = "Rhythm";
-"category.conduction" = "Conduction";
-"category.infarction" = "Infarction";
-"category.hypertrophy" = "Hypertrophy";
-"category.stTWave" = "ST/T Wave";
-"category.pacemaker" = "Pacemaker";
-"category.axis" = "Axis";
-"category.other" = "Other";
+"category.rhythm" = "rhythm";
+"category.conduction" = "conduction";
+"category.infarction" = "infarction";
+"category.hypertrophy" = "hypertrophy";
+"category.stTWave" = "st/t wave";
+"category.pacemaker" = "pacemaker";
+"category.axis" = "axis";
+"category.other" = "other";
 
 /* Common */
-"common.cancel" = "Cancel";
-"common.done" = "Done";
-"common.save" = "Save";
-"common.delete" = "Delete";
-"common.edit" = "Edit";
-"common.error" = "Error";
-"common.ok" = "OK";
-"common.loading" = "Loading...";
+"common.cancel" = "cancel";
+"common.done" = "done";
+"common.save" = "save";
+"common.delete" = "delete";
+"common.edit" = "edit";
+"common.error" = "error";
+"common.ok" = "ok";
+"common.loading" = "loading...";
 
 /* Screening Progress */
-"screening.reading" = "Reading ECG data...";
-"screening.processing" = "Processing signal...";
-"screening.analyzing" = "Running AI analysis...";
-"screening.saving" = "Saving results...";
-"screening.complete" = "Analysis complete";
-"screening.extracting" = "Extracting waveform...";
+"screening.reading" = "reading ecg data...";
+"screening.processing" = "processing signal...";
+"screening.analyzing" = "running ai analysis...";
+"screening.saving" = "saving results...";
+"screening.complete" = "analysis complete";
+"screening.extracting" = "extracting waveform...";
 
 /* Screening Errors */
-"screening.error.noSignal" = "Could not extract ECG signal from image";
-"screening.error.preprocessing" = "Error processing ECG signal";
-"screening.error.inference" = "Error running AI analysis";
-"screening.error.save" = "Error saving results";
+"screening.error.noSignal" = "could not extract ecg signal from image";
+"screening.error.preprocessing" = "error processing ecg signal";
+"screening.error.inference" = "error running ai analysis";
+"screening.error.save" = "error saving results";
 
 /* ECG Sources */
-"source.healthkit" = "Apple Watch";
-"source.pdf" = "PDF Import";
-"source.image" = "Image Import";
-"source.camera" = "Camera Capture";
-"source.appleWatch" = "Apple Watch";
+"source.healthkit" = "apple watch";
+"source.pdf" = "pdf import";
+"source.image" = "image import";
+"source.camera" = "camera capture";
+"source.appleWatch" = "apple watch";
 
 /* HealthKit Errors */
-"healthkit.error.notAvailable" = "HealthKit is not available on this device";
-"healthkit.error.notAuthorized" = "HealthKit access not authorized";
-"healthkit.error.noData" = "No ECG data found";
-"healthkit.error.queryFailed" = "Failed to query HealthKit";
+"healthkit.error.notAvailable" = "healthkit is not available on this device";
+"healthkit.error.notAuthorized" = "healthkit access not authorized";
+"healthkit.error.noData" = "no ecg data found";
+"healthkit.error.queryFailed" = "failed to query healthkit";
 
 /* ECG Classification */
-"ecg.classification.sinusRhythm" = "Sinus Rhythm";
-"ecg.classification.atrialFibrillation" = "Atrial Fibrillation";
-"ecg.classification.lowHeartRate" = "Low Heart Rate";
-"ecg.classification.highHeartRate" = "High Heart Rate";
-"ecg.classification.poorReading" = "Poor Reading";
-"ecg.classification.inconclusive" = "Inconclusive";
-"ecg.classification.notSet" = "Not Classified";
-"ecg.classification.unknown" = "Unknown";
+"ecg.classification.sinusRhythm" = "sinus rhythm";
+"ecg.classification.atrialFibrillation" = "atrial fibrillation";
+"ecg.classification.lowHeartRate" = "low heart rate";
+"ecg.classification.highHeartRate" = "high heart rate";
+"ecg.classification.poorReading" = "poor reading";
+"ecg.classification.inconclusive" = "inconclusive";
+"ecg.classification.notSet" = "not classified";
+"ecg.classification.unknown" = "unknown";
 
 /* Extraction Errors */
-"extraction.error.invalidPDF" = "Invalid or corrupted PDF file";
-"extraction.error.noPages" = "PDF contains no pages";
-"extraction.error.renderFailed" = "Failed to render PDF";
-"extraction.error.invalidImage" = "Invalid image file";
-"extraction.error.pixelDataFailed" = "Failed to read image data";
-"extraction.error.noStripsFound" = "No ECG strips found in image";
-"extraction.error.processingFailed" = "Error processing image";
+"extraction.error.invalidPDF" = "invalid or corrupted pdf file";
+"extraction.error.noPages" = "pdf contains no pages";
+"extraction.error.renderFailed" = "failed to render pdf";
+"extraction.error.invalidImage" = "invalid image file";
+"extraction.error.pixelDataFailed" = "failed to read image data";
+"extraction.error.noStripsFound" = "no ecg strips found in image";
+"extraction.error.processingFailed" = "error processing image";
 
 /* PDF Report */
-"report.subtitle" = "ECG Disease Screening Report";
-"report.patientInfo" = "Patient Information";
-"report.name" = "Name";
-"report.dob" = "Date of Birth";
-"report.gender" = "Gender";
-"report.id" = "Patient ID";
-"report.screeningDate" = "Screening Date";
-"report.primaryFinding" = "PRIMARY FINDING";
-"report.topFindings" = "Top Detected Conditions";
-"report.condition" = "Condition";
-"report.probability" = "Probability";
-"report.ecgWaveform" = "ECG Waveform";
+"report.subtitle" = "ecg disease screening report";
+"report.patientInfo" = "patient information";
+"report.name" = "name";
+"report.dob" = "date of birth";
+"report.gender" = "gender";
+"report.id" = "patient id";
+"report.screeningDate" = "screening date";
+"report.primaryFinding" = "primary finding";
+"report.topFindings" = "top detected conditions";
+"report.condition" = "condition";
+"report.probability" = "probability";
+"report.ecgWaveform" = "ecg waveform";
 
 /* Disclaimer */
-"disclaimer.title" = "⚠️ IMPORTANT DISCLAIMER";
-"disclaimer.full" = "This app is for wellness purposes only and is NOT a medical device. The AI-generated results may not be accurate and should NOT be used for diagnosis or treatment decisions. Always consult a qualified healthcare professional for medical advice.";
+"disclaimer.title" = "⚠️ important disclaimer";
+"disclaimer.full" = "this app is for wellness purposes only and is not a medical device. the ai-generated results may not be accurate and should not be used for diagnosis or treatment decisions. always consult a qualified healthcare professional for medical advice.";
 
 /* Errors */
-"error.healthkit.auth" = "HealthKit access denied";
-"error.healthkit.noData" = "No ECG data available";
-"error.import.invalid" = "Invalid file format";
-"error.model.load" = "Failed to load AI model";
-"error.processing" = "Error processing ECG";
+"error.healthkit.auth" = "healthkit access denied";
+"error.healthkit.noData" = "no ecg data available";
+"error.import.invalid" = "invalid file format";
+"error.model.load" = "failed to load ai model";
+"error.processing" = "error processing ecg";
 
 /* Copyright */
-"copyright" = "© 2026 minuscule health Ltd";
+"copyright" = "© 2026 minuscule health ltd";
