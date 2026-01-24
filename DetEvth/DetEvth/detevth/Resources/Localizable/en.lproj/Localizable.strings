@@ -119,6 +119,7 @@
 "common.error" = "error";
 "common.ok" = "ok";
 "common.loading" = "loading...";
+"common.unknown" = "unknown";
 
 /* Screening Progress */
 "screening.reading" = "reading ecg data...";

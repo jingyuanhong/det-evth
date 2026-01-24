@@ -37,7 +37,7 @@ struct ProfileView: View {
                         Text(viewModel.doctorEmail.isEmpty ? "Not set" : viewModel.doctorEmail)
                             .foregroundStyle(viewModel.doctorEmail.isEmpty ? .secondary : .primary)
                         Spacer()
-                        Button("Edit") {
+                        Button("common.edit") {
                             viewModel.showEditDoctorEmail = true
                         }
                         .font(.caption)

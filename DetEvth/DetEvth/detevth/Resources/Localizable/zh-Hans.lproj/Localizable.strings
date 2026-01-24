@@ -119,6 +119,7 @@
 "common.error" = "错误";
 "common.ok" = "确定";
 "common.loading" = "加载中...";
+"common.unknown" = "未知";
 
 /* Screening Progress */
 "screening.reading" = "读取心电图数据...";

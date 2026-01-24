@@ -2,6 +2,105 @@
 
 ## 2026-01-23
 
+### session 5: company logo integration
+
+#### overview
+- added company logo (logo_clean.png - ecg waveform only) to the app's settings/about section
+- company name "minuscule health ltd." displayed as text below the logo
+- updated all 3 project variants (DetEvth, DetEvth-iOS, DetEvth-App)
+
+#### asset catalog updates
+created CompanyLogo.imageset in each project:
+- `DetEvth/detevth/detevth/Assets.xcassets/CompanyLogo.imageset/`
+- `DetEvth-iOS/Assets.xcassets/CompanyLogo.imageset/`
+- `DetEvth-App/Assets.xcassets/CompanyLogo.imageset/`
+
+#### SettingsView.swift updates
+- added company logo (ecg waveform) at 40pt height
+- added "minuscule health ltd." text below logo in caption/secondary style
+- added "© 2026" text below company name in caption2/tertiary style
+- centered layout in about section with 4pt spacing
+
+files updated:
+- `DetEvth/detevth/detevth/Features/Settings/SettingsView.swift`
+- `DetEvth-iOS/Features/Settings/SettingsView.swift`
+- `DetEvth-App/Features/Settings/SettingsView.swift`
+
+#### exclude "abnormal ecg" from results display
+- modified result processing to skip index 0 ("abnormal ecg") in all locations:
+  - `ScreeningResult.primaryCondition` - inference service
+  - `ScreeningResult.topConditions()` - inference service
+  - `ScreeningRepository.saveScreeningResult()` - when saving to Core Data
+  - `ScreeningResultEntity.create()` - Core Data convenience initializer
+  - `ScreeningResultEntity.topConditions()` - Core Data entity method
+- when model outputs "abnormal ecg" as highest probability, the second-highest condition is shown instead
+- this is a display-only change; model output and raw probabilities are unchanged
+
+files updated:
+- `DetEvth/detevth/detevth/Services/CoreML/ECGInferenceService.swift`
+- `DetEvth/detevth/detevth/Data/Repositories/ScreeningRepository.swift`
+- `DetEvth/detevth/detevth/Data/CoreData/CoreDataModels.swift`
+- `DetEvth/detevth/detevth/Features/ResultDetail/ResultDetailView.swift` (TopConditionsSection)
+- `DetEvth-iOS/Services/CoreML/ECGInferenceService.swift`
+- `DetEvth-iOS/Data/Repositories/ScreeningRepository.swift`
+- `DetEvth-iOS/Data/CoreData/CoreDataModels.swift`
+- `DetEvth-App/Services/CoreML/ECGInferenceService.swift`
+- `DetEvth-App/Data/Repositories/ScreeningRepository.swift`
+- `DetEvth-App/Data/CoreData/CoreDataModels.swift`
+
+#### disease label localization fix (CN mode)
+- changed `.nameEN` to `.localizedName` for all disease condition displays
+- disease labels now show Chinese names when device is in CN mode
+- added `common.unknown` localized string (en: "unknown", cn: "未知")
+- updated `isNormalCondition` check to support both EN and CN condition names
+
+files updated:
+- `DetEvth/detevth/detevth/Features/ResultDetail/ResultDetailView.swift`
+- `DetEvth/detevth/detevth/Features/History/HistoryView.swift`
+- `DetEvth/detevth/detevth/Features/Import/ImportView.swift`
+- `DetEvth/detevth/detevth/Features/Home/HomeViewModel.swift`
+- `DetEvth/detevth/detevth/Resources/Localizable/en.lproj/Localizable.strings`
+- `DetEvth/detevth/detevth/Resources/Localizable/zh-Hans.lproj/Localizable.strings`
+
+#### primary finding icon logic update
+- changed icon/color logic in `PrimaryFindingCard` from confidence-based to condition-based
+- green checkmark: shown only for "sinus rhythm" or "normal sinus rhythm" (normal conditions)
+- orange exclamation: shown for all other conditions (abnormal findings)
+- previous behavior was based on confidence > 0.8
+
+files updated:
+- `DetEvth/detevth/detevth/Features/ResultDetail/ResultDetailView.swift`
+
+#### edit/done button updates
+- removed edit/done button from HistoryView (swipe-to-delete is sufficient)
+- replaced `.onDelete` with custom `.swipeActions` using `common.delete` ("delete") for lowercase
+- ProfileView: replaced system `EditButton()` with custom button using `common.edit`/`common.done`
+
+files updated:
+- `DetEvth/detevth/detevth/Features/History/HistoryView.swift` (removed edit button, lowercase delete)
+- `DetEvth/detevth/detevth/Features/Profile/ProfileView.swift`
+- `DetEvth-iOS/Features/Profile/ProfileView.swift`
+- `DetEvth-App/Features/Profile/ProfileView.swift`
+
+#### profile section headers lowercase
+- added `.textCase(nil)` to section headers to prevent SwiftUI auto-uppercasing
+- headers now display as: "personal information", "emergency contacts", "my doctor's email"
+
+files updated:
+- `DetEvth/detevth/detevth/Features/Profile/ProfileView.swift`
+
+#### app icon update
+- added new app icon (app_logo.png) - navy blue background with white ECG waveform and red indicator
+- updated all 3 iOS project variants (DetEvth, DetEvth-iOS, DetEvth-App)
+- same icon used for regular, dark mode, and tinted variants
+
+files updated:
+- `DetEvth/detevth/detevth/Assets.xcassets/AppIcon.appiconset/`
+- `DetEvth-iOS/Assets.xcassets/AppIcon.appiconset/`
+- `DetEvth-App/Assets.xcassets/AppIcon.appiconset/`
+
+---
+
 ### session 4: lowercase branding update
 
 #### overview

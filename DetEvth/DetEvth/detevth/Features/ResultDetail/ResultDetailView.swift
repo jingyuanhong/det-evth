@@ -66,6 +66,15 @@ struct PrimaryFindingCard: View {
     let condition: String
     let confidence: Float
 
+    // Check if condition is normal (sinus rhythm or normal sinus rhythm - EN/CN)
+    private var isNormalCondition: Bool {
+        let lowercased = condition.lowercased()
+        return lowercased == "sinus rhythm" ||
+               lowercased == "normal sinus rhythm" ||
+               condition == "窦性心律" ||
+               condition == "正常窦性心律"
+    }
+
     var body: some View {
         VStack(spacing: 12) {
             Text("results.primary")
@@ -73,8 +82,8 @@ struct PrimaryFindingCard: View {
                 .foregroundStyle(.secondary)
 
             HStack {
-                Image(systemName: confidence > 0.8 ? "checkmark.circle.fill" : "exclamationmark.circle.fill")
-                    .foregroundStyle(confidence > 0.8 ? .green : .orange)
+                Image(systemName: isNormalCondition ? "checkmark.circle.fill" : "exclamationmark.circle.fill")
+                    .foregroundStyle(isNormalCondition ? .green : .orange)
                     .font(.title)
 
                 Text(condition)
@@ -179,7 +188,7 @@ struct WaveformSection: View {
 struct TopConditionsSection: View {
     let probabilities: [Float]?
 
-    // Get top conditions from probabilities
+    // Get top conditions from probabilities (excluding index 0 "abnormal ecg" - too generic)
     private var topConditions: [(name: String, probability: Float)] {
         guard let probs = probabilities, !probs.isEmpty else {
             return []
@@ -190,7 +199,8 @@ struct TopConditionsSection: View {
         // Create array of (index, probability) and sort by probability
         var indexed: [(index: Int, prob: Float)] = []
         for (index, prob) in probs.enumerated() {
-            if index < conditions.count && prob >= 0.05 {  // Only show conditions with >= 5% probability
+            // Exclude index 0 ("abnormal ecg") - too generic
+            if index != 0 && index < conditions.count && prob >= 0.05 {  // Only show conditions with >= 5% probability
                 indexed.append((index, prob))
             }
         }
@@ -199,7 +209,7 @@ struct TopConditionsSection: View {
 
         // Take top 10
         return indexed.prefix(10).map { item in
-            (conditions[item.index].nameEN, item.prob)
+            (conditions[item.index].localizedName, item.prob)
         }
     }
 

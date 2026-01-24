@@ -19,20 +19,19 @@ struct HistoryView: View {
                             NavigationLink(destination: ResultDetailView(screening: screening)) {
                                 HistoryRowView(screening: screening)
                             }
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    viewModel.deleteScreening(screening)
+                                } label: {
+                                    Text("common.delete")
+                                }
+                            }
                         }
-                        .onDelete(perform: viewModel.deleteScreenings)
                     }
                     .searchable(text: $searchText)
                 }
             }
             .navigationTitle("history.title")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    if !viewModel.screenings.isEmpty {
-                        EditButton()
-                    }
-                }
-            }
             .onAppear {
                 viewModel.loadScreenings()
             }
@@ -97,7 +96,7 @@ class HistoryViewModel: ObservableObject {
             return ScreeningResultModel(
                 id: entity.id ?? UUID(),
                 date: entity.createdAt ?? Date(),
-                primaryCondition: entity.primaryCondition?.nameEN ?? "Unknown",
+                primaryCondition: entity.primaryCondition?.localizedName ?? String(localized: "common.unknown"),
                 confidence: entity.primaryConfidence,
                 source: entity.ecgRecord?.source ?? "import",
                 signal: entity.ecgRecord?.signal,
@@ -114,19 +113,12 @@ class HistoryViewModel: ObservableObject {
         return screenings.filter { $0.primaryCondition.localizedCaseInsensitiveContains(searchText) }
     }
 
-    func deleteScreenings(at offsets: IndexSet) {
-        // Get the filtered list to match indices correctly
-        let filtered = filteredScreenings(searchText: "")
-        for index in offsets {
-            if index < filtered.count {
-                let screening = filtered[index]
-                // Find and delete from Core Data
-                if let entityIndex = screeningEntities.firstIndex(where: { $0.id == screening.id }) {
-                    let entity = screeningEntities[entityIndex]
-                    repository.deleteScreeningResult(entity)
-                    screeningEntities.remove(at: entityIndex)
-                }
-            }
+    func deleteScreening(_ screening: ScreeningResultModel) {
+        // Find and delete from Core Data
+        if let entityIndex = screeningEntities.firstIndex(where: { $0.id == screening.id }) {
+            let entity = screeningEntities[entityIndex]
+            repository.deleteScreeningResult(entity)
+            screeningEntities.remove(at: entityIndex)
         }
         // Reload to refresh the UI
         loadScreenings()

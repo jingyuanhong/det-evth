@@ -238,7 +238,7 @@ class ImportViewModel: ObservableObject {
                     self.screeningResult = ScreeningResultModel(
                         id: savedResult.id ?? UUID(),
                         date: savedResult.createdAt ?? Date(),
-                        primaryCondition: savedResult.primaryCondition?.nameEN ?? "Unknown",
+                        primaryCondition: savedResult.primaryCondition?.localizedName ?? String(localized: "common.unknown"),
                         confidence: savedResult.primaryConfidence,
                         source: "import",
                         signal: combinedSignal,
@@ -316,7 +316,7 @@ class ImportViewModel: ObservableObject {
                     self.screeningResult = ScreeningResultModel(
                         id: savedResult.id ?? UUID(),
                         date: savedResult.createdAt ?? Date(),
-                        primaryCondition: savedResult.primaryCondition?.nameEN ?? "Unknown",
+                        primaryCondition: savedResult.primaryCondition?.localizedName ?? String(localized: "common.unknown"),
                         confidence: savedResult.primaryConfidence,
                         source: "import",
                         signal: combinedSignal,

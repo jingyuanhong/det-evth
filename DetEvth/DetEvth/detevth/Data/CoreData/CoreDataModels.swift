@@ -77,8 +77,9 @@ public class ScreeningResultEntity: NSManagedObject {
         // Store probabilities
         entity.probabilitiesData = probabilities.withUnsafeBufferPointer { Data(buffer: $0) }
 
-        // Find primary condition
-        if let maxIndex = probabilities.indices.max(by: { probabilities[$0] < probabilities[$1] }) {
+        // Find primary condition (excluding index 0 "abnormal ecg" - too generic)
+        let validIndices = probabilities.indices.filter { $0 != 0 }
+        if let maxIndex = validIndices.max(by: { probabilities[$0] < probabilities[$1] }) {
             entity.primaryConditionIndex = Int16(maxIndex)
             entity.primaryConfidence = probabilities[maxIndex]
         }
@@ -102,13 +103,13 @@ public class ScreeningResultEntity: NSManagedObject {
         return DiseaseConditions.all[index]
     }
 
-    // Get top conditions
+    // Get top conditions (excluding index 0 "abnormal ecg" - too generic)
     func topConditions(count: Int = 10, threshold: Float = 0.1) -> [(condition: DiseaseCondition, probability: Float)] {
         let probs = probabilities
         let conditions = DiseaseConditions.all
 
         var results: [(DiseaseCondition, Float)] = []
-        for (index, prob) in probs.enumerated() where prob >= threshold && index < conditions.count {
+        for (index, prob) in probs.enumerated() where index != 0 && prob >= threshold && index < conditions.count {
             results.append((conditions[index], prob))
         }
 

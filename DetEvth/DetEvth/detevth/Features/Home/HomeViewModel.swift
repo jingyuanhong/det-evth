@@ -103,7 +103,7 @@ class HomeViewModel: ObservableObject {
             return ScreeningResultModel(
                 id: entity.id ?? UUID(),
                 date: entity.createdAt ?? Date(),
-                primaryCondition: entity.primaryCondition?.nameEN ?? "Unknown",
+                primaryCondition: entity.primaryCondition?.localizedName ?? String(localized: "common.unknown"),
                 confidence: entity.primaryConfidence,
                 source: entity.ecgRecord?.source ?? "import",
                 signal: entity.ecgRecord?.signal,

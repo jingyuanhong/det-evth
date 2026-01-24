@@ -171,13 +171,15 @@ struct ScreeningResult {
     }
 
     /// Get top N conditions by probability
+    /// Note: Excludes "abnormal ecg" (id: 0) as it is too generic
     func topConditions(n: Int = 10, threshold: Float = 0.1) -> [(condition: DiseaseCondition, probability: Float)] {
         let conditions = DiseaseConditions.all
 
         var results: [(condition: DiseaseCondition, probability: Float)] = []
 
         for (index, probability) in probabilities.enumerated() {
-            if probability >= threshold, index < conditions.count {
+            // Exclude index 0 ("abnormal ecg") - too generic
+            if index != 0, probability >= threshold, index < conditions.count {
                 results.append((conditions[index], probability))
             }
         }
@@ -189,15 +191,20 @@ struct ScreeningResult {
     }
 
     /// Get the primary (highest probability) condition
+    /// Note: Excludes "abnormal ecg" (id: 0) as it is too generic - shows the next most specific condition instead
     var primaryCondition: (condition: DiseaseCondition, probability: Float)? {
-        guard let maxIndex = probabilities.indices.max(by: { probabilities[$0] < probabilities[$1] }) else {
+        let conditions = DiseaseConditions.all
+
+        // Create indexed probabilities, excluding "abnormal ecg" (index 0)
+        let indexedProbs = probabilities.enumerated()
+            .filter { $0.offset != 0 } // Exclude index 0 ("abnormal ecg")
+            .filter { $0.offset < conditions.count }
+
+        guard let maxElement = indexedProbs.max(by: { $0.element < $1.element }) else {
             return nil
         }
 
-        let conditions = DiseaseConditions.all
-        guard maxIndex < conditions.count else { return nil }
-
-        return (conditions[maxIndex], probabilities[maxIndex])
+        return (conditions[maxElement.offset], maxElement.element)
     }
 
     /// Get conditions by category

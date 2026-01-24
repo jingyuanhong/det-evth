@@ -45,12 +45,22 @@ struct SettingsView: View {
                             .foregroundStyle(.secondary)
                     }
 
-                    HStack {
-                        Text("copyright")
-                        Spacer()
+                    VStack(spacing: 4) {
+                        Image("CompanyLogo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 40)
+
+                        Text("minuscule health ltd.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+
+                        Text("© 2026")
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
                     }
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
                 } header: {
                     Text("settings.about")
                 }

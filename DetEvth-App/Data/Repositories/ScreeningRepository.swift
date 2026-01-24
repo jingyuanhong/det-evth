@@ -130,8 +130,9 @@ final class ScreeningRepository: ObservableObject {
             result.perStripProbabilitiesData = flattened.withUnsafeBufferPointer { Data(buffer: $0) }
         }
 
-        // Find primary condition
-        if let maxIndex = probabilities.indices.max(by: { probabilities[$0] < probabilities[$1] }) {
+        // Find primary condition (excluding index 0 "abnormal ecg" - too generic)
+        let validIndices = probabilities.indices.filter { $0 != 0 }
+        if let maxIndex = validIndices.max(by: { probabilities[$0] < probabilities[$1] }) {
             result.primaryConditionIndex = Int16(maxIndex)
             result.primaryConfidence = probabilities[maxIndex]
         }

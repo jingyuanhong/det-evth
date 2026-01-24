@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ProfileView: View {
     @StateObject private var viewModel = ProfileViewModel()
+    @Environment(\.editMode) private var editMode
 
     var body: some View {
         NavigationStack {
@@ -27,6 +28,7 @@ struct ProfileView: View {
                     .buttonStyle(.plain)
                 } header: {
                     Text("profile.personalInfo")
+                        .textCase(nil)
                 }
 
                 // Emergency Contacts Section
@@ -47,6 +49,7 @@ struct ProfileView: View {
                     }
                 } header: {
                     Text("profile.emergencyContacts")
+                        .textCase(nil)
                 }
 
                 // Doctor Email Section
@@ -66,13 +69,20 @@ struct ProfileView: View {
                     .buttonStyle(.plain)
                 } header: {
                     Text("profile.doctorEmail")
+                        .textCase(nil)
                 }
             }
             .navigationTitle("profile.title")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     if !viewModel.emergencyContacts.isEmpty {
-                        EditButton()
+                        Button {
+                            withAnimation {
+                                editMode?.wrappedValue = editMode?.wrappedValue == .active ? .inactive : .active
+                            }
+                        } label: {
+                            Text(editMode?.wrappedValue == .active ? "common.done" : "common.edit")
+                        }
                     }
                 }
             }
